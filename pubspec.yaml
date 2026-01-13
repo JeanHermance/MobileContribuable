@@ -80,6 +80,7 @@ dependencies:
   # SVG
   flutter_svg: ^2.0.10+1
   path: ^1.9.1
+  app_links: ^6.4.1
 
 dev_dependencies:
   flutter_test:
@@ -106,6 +107,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/logo/application/
+    - assets/images/logo/partenaires/
     - assets/langs/mg.json
     - assets/langs/fr.json
     - assets/langs/en.json

@@ -42,9 +42,14 @@ android {
         }
     }
 
-    buildTypes {
+   buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            // On utilise la clé "debug" qui est toujours présente par défaut
+            signingConfig = signingConfigs.getByName("debug")
+            
+            // On désactive la réduction de code pour éviter les erreurs de compilation
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }

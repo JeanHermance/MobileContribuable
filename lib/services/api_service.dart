@@ -44,12 +44,11 @@ class ApiService {
   ApiService() {
     // Configuration pour le serveur principal
     _dio.options.baseUrl = baseUrl;
-    _dio.options.connectTimeout = const Duration(seconds: 30);
-    _dio.options.receiveTimeout = const Duration(seconds: 30);
+    _dio.options.connectTimeout = const Duration(seconds: 45); // Augmenté à 45s
+    _dio.options.receiveTimeout = const Duration(seconds: 60); // Augmenté à 60s pour les gros volumes de données
     _dio.options.headers = {
       'Accept': 'application/json',
     };
-
     // Configuration pour le serveur local
     _dioLocal.options.baseUrl = baseUrl1;
     _dioLocal.options.connectTimeout = const Duration(seconds: 30);
@@ -71,14 +70,20 @@ class ApiService {
   }
 
   // Save token to SharedPreferences
-  Future<void> _saveToken(String token) async {
+ // Save token to SharedPreferences
+  Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', token);
     await prefs.setInt('token_timestamp', DateTime.now().millisecondsSinceEpoch);
     _accessToken = token;
+    
+    // 🔥 AJOUT CRUCIAL : Mettre à jour le header IMMÉDIATEMENT
+    // Sans cela, les appels API juste après le deeplink échoueront en 401
     _dio.options.headers['Authorization'] = 'Bearer $token';
+    _dioLocal.options.headers['Authorization'] = 'Bearer $token';
+    
+    debugPrint("🔑 [ApiService] Header Authorization mis à jour avec le nouveau token.");
   }
-
   // Remove token from SharedPreferences
   Future<void> _removeToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -208,7 +213,7 @@ class ApiService {
       
       // Save tokens if login successful
       if (response.data != null && response.data['access_token'] != null) {
-        await _saveToken(response.data['access_token']);
+        await saveToken(response.data['access_token']);
         
         // Save refresh token
         if (response.data['refresh_token'] != null) {
